@@ -101,6 +101,7 @@ pub trait EnumArray:
 /// ```
 /// // use the trait EnumArray to get access to the `iter` method
 /// use enum_array::{enum_array, EnumArray};
+/// use core::str::FromStr;
 ///
 /// enum_array! {
 ///     #[doc = "An example enum, using case conversion"]
@@ -118,6 +119,9 @@ pub trait EnumArray:
 /// }
 ///
 /// assert_eq!(HelloWorldKebabCase::WorldWhat.as_static_str(), "world-what");
+///
+/// assert!(HelloWorldKebabCase::from_str("HelloWorld").is_err());
+/// assert_eq!(HelloWorldKebabCase::from_str("whaaaaaaatIS"), Ok(HelloWorldKebabCase::WhatIs));
 ///
 /// for variant in HelloWorldKebabCase::iter() {
 ///     println!("{}", variant);

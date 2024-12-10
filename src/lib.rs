@@ -43,11 +43,9 @@ pub trait EnumArray:
     const NUM_VARIANTS: usize;
 
     /// Iterate over this enum's variants
+    #[inline(always)]
     fn iter() -> EnumIter<Self> {
-        EnumIter {
-            idx: 0,
-            _marker: PhantomData,
-        }
+        EnumIter::new()
     }
 }
 
@@ -261,9 +259,17 @@ macro_rules! enum_array {
 ///     }
 /// }
 ///
-/// for variant in SimpleEnum::iter() {
-///     println!("{}", variant);
-/// }
+/// let mut enum_as_iter = SimpleEnum::iter();
+///
+/// assert_eq!(enum_as_iter.size_hint(), (3, Some(3)));
+///
+/// assert_eq!(enum_as_iter.next(), Some(SimpleEnum::Red));
+/// assert_eq!(enum_as_iter.next().map(|v| v.as_static_str()), Some("Green"));
+/// assert_eq!(enum_as_iter.next().map(|v| v.as_static_str()), Some("Blue"));
+///
+/// assert_eq!(enum_as_iter.next(), None);
+///
+/// assert_eq!(enum_as_iter.size_hint(), (0, Some(0)));
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct EnumIter<T: EnumArray> {
@@ -303,3 +309,61 @@ impl<T: EnumArray> Iterator for EnumIter<T> {
         (remaining, Some(remaining))
     }
 }
+/*pub trait ArrayEnum<const N: usize>:
+    Sized + 'static + ::core::fmt::Display + Copy + Eq + AsRef<str> + ::core::str::FromStr
+{
+    const NUM_VARIANTS: usize = N;
+    const VARIANT_ARRAY: [Self; N];
+    const VARIANT_NAMES: [&'static str; N];
+}
+
+pub trait SliceEnum:
+    Sized + 'static + ::core::fmt::Display + Copy + Eq + AsRef<str> + ::core::str::FromStr
+{
+    const NUM_VARIANTS: usize;
+    const VARIANT_ARRAY: &'static [Self];
+    const VARIANT_NAMES: &'static [&'static str];
+}
+
+#[macro_export]
+macro_rules! enum_string_array {
+    ($vis:vis enum $enum_name:ident {  $( $variant:ident $(: $str:expr)? ),+$(,)? }) => {
+        $vis enum $enum_name {
+            $( $variant, )+
+        }
+
+        impl $enum_name {
+            pub const NUM_VARIANTS: usize = $($crate::enum_string_array!(@internal_numsub $variant) +)* 0;
+        }
+    };
+
+    (@internal_numsub $t:tt) => {
+        1
+    };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::enum_string_array;
+
+    enum_string_array! {
+        pub enum ArrayedEnum {
+            Red,
+            Blue,
+            Yellow,
+            Green,
+            Pink,
+            Black,
+            White,
+            Orange,
+            Brown,
+            Purple,
+        }
+    }
+
+    #[test]
+    fn num_variants() {
+        assert_eq!(ArrayedEnum::NUM_VARIANTS, 10);
+    }
+}
+*/

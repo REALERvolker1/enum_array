@@ -1,0 +1,7 @@
+[package]
+name = "enum_array"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+const_format = { version = "0.2.34", features = ["rust_1_64", "rust_1_83"] }

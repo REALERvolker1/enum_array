@@ -265,10 +265,25 @@ macro_rules! enum_array {
 ///     println!("{}", variant);
 /// }
 /// ```
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct EnumIter<T: EnumArray> {
     _marker: PhantomData<T>,
     idx: usize,
+}
+impl<T: EnumArray> Default for EnumIter<T> {
+    #[inline(always)]
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl<T: EnumArray> EnumIter<T> {
+    #[inline(always)]
+    pub const fn new() -> Self {
+        Self {
+            _marker: PhantomData,
+            idx: 0,
+        }
+    }
 }
 impl<T: EnumArray> Iterator for EnumIter<T> {
     type Item = T;
@@ -281,5 +296,10 @@ impl<T: EnumArray> Iterator for EnumIter<T> {
         } else {
             None
         }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = T::NUM_VARIANTS - self.idx;
+        (remaining, Some(remaining))
     }
 }
